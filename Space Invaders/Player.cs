@@ -1,7 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,33 +11,46 @@ namespace Space_Invaders
 {
     public class Player
     {
-        public Texture2D tex;
-        public Vector2 pos;
+        public Vector2 position;
         public Vector2 velocity;
-        public int windowWidth;
+        public Texture2D tex;
+        public Rectangle hitbox;
+        public int lives = 3;
 
-        public Player(Texture2D tex, Vector2 pos, Vector2 velocity, int windowWidth) 
+
+        public Player(Vector2 position, Vector2 velocity, Texture2D tex, Rectangle hitbox)
         {
-            this.tex = tex;
-            this.pos = pos;
+            this.position = position;
             this.velocity = velocity;
-            this.windowWidth = windowWidth;
-       
+            this.tex = tex;
+            this.hitbox = hitbox;
         }
 
-        public void Update()
+        public void Update(Game1 game)
         {
-            if (pos.X < 0 || pos.X > windowWidth - tex.Width)
-            {
-                velocity = velocity * -1;
+            
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Left) && position.X > 0)
+            {        
+                // left
+                position.X = position.X - velocity.X;
             }
 
-            pos = pos + velocity;
+            else if(Keyboard.GetState().IsKeyDown(Keys.Right) && position.X < Game1.screenDim.X - tex.Width)
+            {       
+                // right
+                position.X = position.X + velocity.X;
+            }
+
+            if (lives <= 0)
+            {
+                game.Exit();
+            }
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(tex, pos, Color.White);
+            spriteBatch.Draw(tex, position, Color.White);
         }
     }
 }
