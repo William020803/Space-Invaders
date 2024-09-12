@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace Space_Invaders
@@ -10,6 +11,7 @@ namespace Space_Invaders
     {
         private GraphicsDeviceManager graphics;
         private SpriteBatch spriteBatch;
+        public KeyboardState oldKeyState, keyState;
         public static Vector2 screenDim;
         public Vector2 playerPos;
         public Vector2 playerVel = new Vector2(3, 0);
@@ -17,13 +19,20 @@ namespace Space_Invaders
         public Vector2 enemyPos;
         public Vector2 enemyVel = new Vector2(0, 1);
         public Rectangle enemyHitbox;
+        public Vector2 bulletPos;
+        public Vector2 bulletVel = new Vector2(0, -2);
+        public Rectangle bulletHitbox;
         public Texture2D startButtonTex;
         public Texture2D enemyTex;
         public Texture2D playerTex;
-        public Texture2D bulletTex;
+        public Texture2D bulletTex;         
         public Player player;
         public Enemy enemy;
+        public Bullet bullet;
         public List<Enemy> enemyList = new List<Enemy>();
+        public List<Enemy> enemyKillList = new List<Enemy>();
+        public List<Bullet> bulletList = new List<Bullet>();
+        public List<Bullet> bulletKillList = new List<Bullet>();
         public int score = 0;
 
         public Game1()
@@ -82,17 +91,60 @@ namespace Space_Invaders
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            oldKeyState = keyState;
+            keyState = Keyboard.GetState();
+
+
             player.Update(this);
 
-           
+
+            if (keyState.IsKeyDown(Keys.Space) && oldKeyState.IsKeyUp(Keys.Space))
+            {
+                bulletPos = new Vector2(player.position.X + playerTex.Width / 2, player.position.Y);
+                bulletHitbox = new Rectangle((int)bulletPos.X, (int)bulletPos.Y, bulletTex.Width, bulletTex.Height);
+                bullet = new Bullet(bulletPos, bulletVel, bulletTex, bulletHitbox);
+                bulletList.Add(bullet);
+            }
+            
+
+            foreach (Bullet bullet in bulletList)
+            {
+                bullet.Update(bulletKillList);
+            }
+
+
+
             foreach (Enemy enemy in enemyList)
             {
-                enemy.Update(this);
+
+                enemy.Update();
 
                 if (enemy.hitbox.Intersects(player.hitbox) || enemy.hitbox.Y > screenDim.Y)
+                {                    
+                    player.lives--;                    
+                }                                               
+            }
+
+            foreach (Enemy enemy in enemyList)
+            {
+                foreach (Bullet bullet in bulletList)
                 {
-                    player.lives--;
+                    if (enemy.hitbox.Intersects(bullet.hitbox))
+                    {
+                        enemyKillList.Add(enemy);
+                        bulletKillList.Add(bullet);
+                    }
                 }
+            }
+
+            foreach (Enemy killed in enemyKillList)
+            {
+                enemyList.Remove(killed);
+            }
+
+            foreach (Bullet gone in bulletKillList)
+            {
+                bulletList.Remove(gone);
             }
 
 
@@ -110,10 +162,17 @@ namespace Space_Invaders
 
             player.Draw(spriteBatch);
 
+            foreach (Bullet bullet in bulletList)
+            {
+                bullet.Draw(spriteBatch);
+            }
+            
+
             foreach (Enemy enemy in enemyList)
             {
                 enemy.Draw(spriteBatch);
             }
+
             spriteBatch.End();
             // TODO: Add your drawing code here
 

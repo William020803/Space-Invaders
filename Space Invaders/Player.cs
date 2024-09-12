@@ -28,7 +28,7 @@ namespace Space_Invaders
 
         public void Update(Game1 game)
         {
-            
+            hitbox.Y = (int)position.Y;
 
             if (Keyboard.GetState().IsKeyDown(Keys.Left) && position.X > 0)
             {        

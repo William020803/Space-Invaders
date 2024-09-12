@@ -24,7 +24,7 @@ namespace Space_Invaders
             this.hitbox = hitbox;
         }
 
-        public void Update(Game1 game)
+        public void Update()
         {
             position.Y = position.Y + velocity.Y;
             hitbox.Y = (int)position.Y;            

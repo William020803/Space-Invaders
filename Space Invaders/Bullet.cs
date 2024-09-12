@@ -16,6 +16,7 @@ namespace Space_Invaders
         public Vector2 velocity;
         public Texture2D tex;
         public Rectangle hitbox;
+        //public KeyboardState oldKeyState, keyState;
 
         public Bullet(Vector2 position, Vector2 velocity, Texture2D tex, Rectangle hitbox)
         {
@@ -25,19 +26,27 @@ namespace Space_Invaders
             this.hitbox = hitbox;
         }
 
-        public void Update()
+        public void Update(List<Bullet> bulletsToRemove)
         {
-            position.Y = position.Y - velocity.Y;
-
-            if (Keyboard.GetState().IsKeyDown(Keys.Space))
+            position.Y = position.Y + velocity.Y;
+            hitbox.Y = (int)position.Y;
+            
+            if (position.Y < 0 )
             {
-
+                bulletsToRemove.Add(this);
             }
         }
 
-        public void Draw()
+        public void Draw(SpriteBatch spriteBatch)
         {
-
+            spriteBatch.Draw(tex, position, Color.White);
         }
+
+       /* public bool Spawn()
+        {
+            oldKeyState = keyState;
+            keyState = Keyboard.GetState();
+            return keyState.IsKeyDown(Keys.Space) || oldKeyState.IsKeyUp(Keys.Space);
+        }*/
     }
 }
