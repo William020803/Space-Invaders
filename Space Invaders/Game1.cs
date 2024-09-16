@@ -29,11 +29,15 @@ namespace Space_Invaders
         public Player player;
         public Enemy enemy;
         public Bullet bullet;
+        public ScoreManager scoreManager;
         public List<Enemy> enemyList = new List<Enemy>();
         public List<Enemy> enemyKillList = new List<Enemy>();
         public List<Bullet> bulletList = new List<Bullet>();
         public List<Bullet> bulletKillList = new List<Bullet>();
-        public int score = 0;
+        private int bulletCooldown = 20;
+        private bool bulletCooldownActive = false;
+
+        
 
         public Game1()
         {
@@ -57,6 +61,7 @@ namespace Space_Invaders
             playerTex = Content.Load<Texture2D>("player");
             bulletTex = Content.Load<Texture2D>("bullet");
            
+            // Changes the size of the game window
             graphics.PreferredBackBufferHeight = Window.ClientBounds.Width;
             graphics.PreferredBackBufferWidth = Window.ClientBounds.Height;
             graphics.ApplyChanges();
@@ -81,7 +86,7 @@ namespace Space_Invaders
                 }
             }
 
-            
+            scoreManager = new ScoreManager();
            
             // TODO: use this.Content to load your game content here
         }
@@ -94,19 +99,30 @@ namespace Space_Invaders
             oldKeyState = keyState;
             keyState = Keyboard.GetState();
 
+            if (bulletCooldownActive)
+            {
+                bulletCooldown--;
 
-            player.Update(this);
+                if (bulletCooldown <= 0)
+                {
+                    bulletCooldown = 20;
+                    bulletCooldownActive = false;
+                }
+            }
+                        
 
-
-            if (keyState.IsKeyDown(Keys.Space) && oldKeyState.IsKeyUp(Keys.Space))
+            // Spawns bullets if the conditions are met
+            if (keyState.IsKeyDown(Keys.Space) && oldKeyState.IsKeyUp(Keys.Space) && !bulletCooldownActive)
             {
                 bulletPos = new Vector2(player.position.X + playerTex.Width / 2, player.position.Y);
                 bulletHitbox = new Rectangle((int)bulletPos.X, (int)bulletPos.Y, bulletTex.Width, bulletTex.Height);
                 bullet = new Bullet(bulletPos, bulletVel, bulletTex, bulletHitbox);
                 bulletList.Add(bullet);
+
+                bulletCooldownActive = true;
             }
             
-
+             
             foreach (Bullet bullet in bulletList)
             {
                 bullet.Update(bulletKillList);
@@ -116,27 +132,31 @@ namespace Space_Invaders
 
             foreach (Enemy enemy in enemyList)
             {
-
-                enemy.Update();
-
-                if (enemy.hitbox.Intersects(player.hitbox) || enemy.hitbox.Y > screenDim.Y)
-                {                    
-                    player.lives--;                    
-                }                                               
+                enemy.Update();                                                             
             }
 
+            player.Update(enemyList);
+
+            if (player.lives <= 0)
+            {
+                Exit();
+            }
+
+            // Checks for collisions between bullets and enemies
             foreach (Enemy enemy in enemyList)
             {
                 foreach (Bullet bullet in bulletList)
                 {
                     if (enemy.hitbox.Intersects(bullet.hitbox))
                     {
+                        scoreManager.Update();
                         enemyKillList.Add(enemy);
                         bulletKillList.Add(bullet);
                     }
                 }
             }
 
+            // Removes killed enemies and used bullets from the game
             foreach (Enemy killed in enemyKillList)
             {
                 enemyList.Remove(killed);
@@ -147,8 +167,9 @@ namespace Space_Invaders
                 bulletList.Remove(gone);
             }
 
-
-            Window.Title = "Space Invaders        Score: " + score;
+            // Displays game title and current score
+            Window.Title = "Space Invaders        Score: " + scoreManager.score;
+           
             // TODO: Add your update logic here
 
             base.Update(gameTime);

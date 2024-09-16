@@ -27,7 +27,8 @@ namespace Space_Invaders
         public void Update()
         {
             position.Y = position.Y + velocity.Y;
-            hitbox.Y = (int)position.Y;            
+            hitbox.Y = (int)position.Y;    
+            
         }
 
         public void Draw(SpriteBatch spriteBatch)

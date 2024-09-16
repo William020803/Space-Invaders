@@ -31,6 +31,7 @@ namespace Space_Invaders
             position.Y = position.Y + velocity.Y;
             hitbox.Y = (int)position.Y;
             
+            // Adds bullets for removal if they're outside the screen
             if (position.Y < 0 )
             {
                 bulletsToRemove.Add(this);

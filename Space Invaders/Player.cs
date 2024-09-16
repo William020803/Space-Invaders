@@ -16,6 +16,8 @@ namespace Space_Invaders
         public Texture2D tex;
         public Rectangle hitbox;
         public int lives = 3;
+        private bool iFramesActive = false;
+        private  int iFrames = 120;
 
 
         public Player(Vector2 position, Vector2 velocity, Texture2D tex, Rectangle hitbox)
@@ -26,9 +28,18 @@ namespace Space_Invaders
             this.hitbox = hitbox;
         }
 
-        public void Update(Game1 game)
+        public void Update(List<Enemy> enemyList)
         {
-            hitbox.Y = (int)position.Y;
+            if (iFramesActive)
+            {
+                iFrames--;
+
+                if (iFrames <= 0)
+                {
+                    iFrames = 120;
+                    iFramesActive = false;
+                }
+            }
 
             if (Keyboard.GetState().IsKeyDown(Keys.Left) && position.X > 0)
             {        
@@ -42,10 +53,21 @@ namespace Space_Invaders
                 position.X = position.X + velocity.X;
             }
 
-            if (lives <= 0)
+            hitbox.Y = (int)position.Y;
+
+            foreach (Enemy enemy in enemyList)
             {
-                game.Exit();
-            }
+                if (hitbox.Intersects(enemy.hitbox) && !iFramesActive)
+                {
+                    lives--;
+                    iFramesActive = true;
+                }
+
+                else if (enemy.hitbox.Y > Game1.screenDim.Y)
+                {
+                    lives--;
+                } 
+            }                        
         }
 
         public void Draw(SpriteBatch spriteBatch)
