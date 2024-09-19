@@ -12,12 +12,13 @@ namespace Space_Invaders
     public class Player
     {
         public Vector2 position;
-        public Vector2 velocity;
-        public Texture2D tex;
+        private Vector2 velocity;
+        private Texture2D tex;
         public Rectangle hitbox;
         public int lives = 3;
-        private bool iFramesActive = false;
-        private  int iFrames = 120;
+        private bool iFramesActive = false;        
+        private int iFramesMax = 90;
+        private int iFrames = 90;
 
 
         public Player(Vector2 position, Vector2 velocity, Texture2D tex, Rectangle hitbox)
@@ -28,7 +29,7 @@ namespace Space_Invaders
             this.hitbox = hitbox;
         }
 
-        public void Update(List<Enemy> enemyList)
+        public void Update(Enemy[,] enemies)
         {
             if (iFramesActive)
             {
@@ -36,7 +37,7 @@ namespace Space_Invaders
 
                 if (iFrames <= 0)
                 {
-                    iFrames = 120;
+                    iFrames = iFramesMax;
                     iFramesActive = false;
                 }
             }
@@ -55,7 +56,7 @@ namespace Space_Invaders
 
             hitbox.Y = (int)position.Y;
 
-            foreach (Enemy enemy in enemyList)
+            foreach (Enemy enemy in enemies)
             {
                 if (hitbox.Intersects(enemy.hitbox) && !iFramesActive)
                 {

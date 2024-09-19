@@ -11,10 +11,14 @@ namespace Space_Invaders
 {
     public class Enemy
     {
-        public Vector2 position;
-        public Vector2 velocity;
-        public Texture2D tex;
+        private Vector2 position;
+        private Vector2 velocity;
+        private Texture2D tex;
         public Rectangle hitbox;
+        public bool active = true;
+        private bool moveDown = false;
+        private int direction = 1;
+        
 
         public Enemy(Vector2 position, Vector2 velocity, Texture2D tex, Rectangle hitbox)
         {
@@ -24,16 +28,63 @@ namespace Space_Invaders
             this.hitbox = hitbox;
         }
 
-        public void Update()
+        public void Update(Enemy[,] enemies)
         {
-            position.Y = position.Y + velocity.Y;
-            hitbox.Y = (int)position.Y;    
+            if (active)
+            {
+                if (!moveDown)
+                {
+
+
+                    position.X = position.X + velocity.X * direction;
+                    hitbox.X = (int)position.X;
+                    
+
+                    if (position.X <= 0 || position.X >= Game1.screenDim.X - tex.Width)
+                    {
+                        moveDown = true;                        
+                    }
+                }
+
+                if (moveDown)
+                {
+                    for (int i = 0; i < enemies.GetLength(0); i++)
+                    {
+                        for (int j = 0; j < enemies.GetLength(1); j++)
+                        {
+                            enemies[i, j].position.Y = enemies[i, j].position.Y + velocity.Y;
+                            enemies[i, j].hitbox.Y = (int)enemies[i, j].position.Y;
+                            enemies[i, j].direction = enemies[i, j].direction * -1;
+                        }
+                    }
+                   
+                    moveDown = false;
+                    
+                }   
+                
+
+                
+                if (position.Y + tex.Height >= Game1.screenDim.Y)
+                {
+                    active = false;
+                }
+            }
+
+            else
+            {
+                hitbox = Rectangle.Empty;
+            }
+            
             
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(tex, position, Color.White);
+            if (active)
+            {
+                spriteBatch.Draw(tex, position, Color.White);
+            }
+            
         }
     }
 }

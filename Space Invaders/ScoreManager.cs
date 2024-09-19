@@ -11,6 +11,8 @@ namespace Space_Invaders
     {
         public int score = 0;
         private int enemyScore = 10;
+        private int eliteEnemyScore = 30;
+        private int bossEnemyScore = 50;
         
         public void Update()
         {

@@ -12,10 +12,11 @@ namespace Space_Invaders
 {
     public class Bullet
     {
-        public Vector2 position;
-        public Vector2 velocity;
-        public Texture2D tex;
+        private Vector2 position;
+        private Vector2 velocity;
+        private Texture2D tex;
         public Rectangle hitbox;
+        public bool active = true;
         //public KeyboardState oldKeyState, keyState;
 
         public Bullet(Vector2 position, Vector2 velocity, Texture2D tex, Rectangle hitbox)
@@ -26,21 +27,34 @@ namespace Space_Invaders
             this.hitbox = hitbox;
         }
 
-        public void Update(List<Bullet> bulletsToRemove)
+        public void Update()
         {
-            position.Y = position.Y + velocity.Y;
-            hitbox.Y = (int)position.Y;
-            
-            // Adds bullets for removal if they're outside the screen
-            if (position.Y < 0 )
+            if (active)
             {
-                bulletsToRemove.Add(this);
+                position.Y = position.Y + velocity.Y;
+                hitbox.Y = (int)position.Y;
+
+                // Adds bullets for removal if they're outside the screen
+                if (position.Y < 0)
+                {
+                    active = false;
+                }
             }
+
+            else
+            {
+                hitbox = Rectangle.Empty;
+            }
+           
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(tex, position, Color.White);
+            if (active)
+            {
+                spriteBatch.Draw(tex, position, Color.White);
+            }
+            
         }
 
        /* public bool Spawn()
